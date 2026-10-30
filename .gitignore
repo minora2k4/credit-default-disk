@@ -1,2 +1,12 @@
 /mlops_artifacts
 /data
+/de_pipeline/work
+
+/CLAUDE.md
+/.claude
+/de_pipeline/plans
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

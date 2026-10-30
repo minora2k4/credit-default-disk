@@ -1,0 +1,14 @@
+# File gốc của pipeline. Thêm dần từng công cụ qua `include:`
+#   - compose/spark.yml   (giai đoạn 3)
+#   ...
+
+name: credit
+
+include:
+  - compose/hdfs.yml      # giai đoạn 1
+  - compose/kafka.yml     # giai đoạn 2
+  - compose/simulator.yml # giai đoạn 2 (profile sim)
+
+networks:
+  default:
+    name: credit-net
