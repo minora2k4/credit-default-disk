@@ -64,3 +64,6 @@ BUREAU_AMOUNT_COLUMNS = [
     "AMT_CREDIT_SUM_OVERDUE",
     "AMT_ANNUITY",
 ]
+
+# Notebook (cell 9) loại hồ sơ thiếu một trong 4 cột số tiền này
+REQUIRED_AMOUNT_COLUMNS = ["AMT_ANNUITY", "AMT_CREDIT", "AMT_GOODS_PRICE", "AMT_INCOME_TOTAL"]

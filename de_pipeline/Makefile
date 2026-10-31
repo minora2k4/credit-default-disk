@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help hdfs-ingest hdfs-verify topics sim-pool-real sim-pool-synth simulate
+.PHONY: help hdfs-ingest hdfs-verify topics sim-pool-real sim-pool-synth simulate silver compare features score
 
 NN := docker compose exec -T namenode
 TABLES := application_train bureau bureau_balance
@@ -14,7 +14,7 @@ OUTCOME_DELAY ?= 15
 help: ## Liệt kê các target
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
 
-hdfs-ingest: ## Đưa CSV gốc + mô hình ONNX lên HDFS (chạy lại bao nhiêu lần cũng an toàn)
+hdfs-ingest: ## Đưa CSV gốc + mô hình ONNX lên HDFS 
 	$(NN) hdfs dfs -mkdir -p /datalake/silver /datalake/gold /datalake/reference /checkpoints $(MODEL_DIR)
 	@for t in $(TABLES); do \
 		$(NN) hdfs dfs -mkdir -p /datalake/bronze/batch/$$t && \
@@ -49,3 +49,15 @@ sim-pool-synth: ## Sinh pool dữ liệu TỔNG HỢP bằng SDV theo phân ph�
 
 simulate: ## Bắn hồ sơ vào Kafka. Tham số: SOURCE=real-test|synthetic RATE=hồ sơ/giây LIMIT=số hồ sơ (0=hết) OUTCOME_DELAY=giây
 	docker compose --profile sim run --rm simulator python simulator/producer.py --source $(SOURCE) --rate $(RATE) --limit $(LIMIT) --outcome-delay $(OUTCOME_DELAY)
+
+silver: ## Spark: làm sạch bronze -> silver (Parquet trên HDFS)
+	docker compose --profile tools run --rm spark-client spark-submit jobs/bronze_to_silver.py
+
+compare: ## Spark: so đặc trưng với notebook. Tham số: STAGE=application|bureau_balance|bureau|cash
+	docker compose --profile tools run --rm spark-client spark-submit tools/compare_features.py --stage $(STAGE)
+
+features: ## Spark: silver -> gold/features_cash (221 đặc trưng + TARGET + split)
+	docker compose --profile tools run --rm spark-client spark-submit jobs/build_features.py
+
+score: ## Spark: chấm điểm bằng ONNX + kiểm tra GATE ROC-AUC (phải khớp notebook 0.7800977)
+	docker compose --profile tools run --rm spark-client spark-submit jobs/batch_score.py

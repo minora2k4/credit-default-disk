@@ -18,6 +18,8 @@ services:
       # CSV gốc và mô hình, chỉ đọc. Mount vào /raw vì /data đã dành cho dữ liệu HDFS
       - ../../data:/raw:ro
       - ../../mlops_artifacts:/artifacts:ro
+      # Dữ liệu trung gian trên host (đáp án chuẩn từ notebook, holdout_ids...), chỉ đọc
+      - ../work:/work:ro
     mem_limit: 1g
     healthcheck:
       # Chỉ cần NameNode phản hồi. KHÔNG đòi safemode OFF: sau khi khởi động lại với dữ liệu cũ, NameNode ở safemode

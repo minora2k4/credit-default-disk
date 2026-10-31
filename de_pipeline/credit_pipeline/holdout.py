@@ -6,8 +6,7 @@ thì các dòng rơi vào tập test là hoàn toàn giống notebook.
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Notebook cell 9: loại hồ sơ thiếu một trong 4 cột số tiền này
-REQUIRED_AMOUNT_COLUMNS = ["AMT_ANNUITY", "AMT_CREDIT", "AMT_GOODS_PRICE", "AMT_INCOME_TOTAL"]
+from credit_pipeline.columns import REQUIRED_AMOUNT_COLUMNS  # noqa: F401  (synthesize_pool.py import tên này từ đây)
 
 
 def build_holdout_ids(application_csv_path):
